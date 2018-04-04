@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="OFF" monitorInterval="3600">
+	<!-- 定义全局变量以便使用 -->
+	<Properties>
+        <Property name="LOG_HOME">/data/logs/demo/api</Property>
+        <!-- 日志备份目录 -->
+        <Property name="DEBUG_NAME">debug</Property>
+        <Property name="INFO_NAME">info</Property>
+        <Property name="WARN_NAME">warn</Property>
+        <Property name="ERROR_NAME">error</Property>
+	</Properties>
+	
+	<!-- 日志输出地 -->
+    <Appenders>
+        <!-- 定义控制台输出 -->
+        <Console name="Console" target="SYSTEM_OUT" follow="true">
+        	<!--控制台只输出level及以上级别的信息（onMatch），其他的直接拒绝（onMismatch）-->
+            <ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout pattern="%d{DEFAULT} %-5level %class{36} LINE:%L - %msg%xEx%n" />
+        </Console>
+        <!-- 每天gzip一次，单文件最大20M，每天可以有7个 -->
+        <RollingFile name="DailyFile4Debug" append="false" 
+        		fileName="${LOG_HOME}/${DEBUG_NAME}.log"
+				filePattern="${LOG_HOME}/$${date:yyyy-MM}/${DEBUG_NAME}-%d{yyyy-MM-dd}-%i.log.gz">
+			<PatternLayout charset="UTF-8" pattern="%d{DEFAULT} %-5level %class{36} LINE:%L - %msg%xEx%n" />
+			<Policies>
+				<TimeBasedTriggeringPolicy />
+				<SizeBasedTriggeringPolicy size="20MB"/>
+			</Policies>
+      		<filters>
+	            <ThresholdFilter level="INFO" onMatch="DENY" onMismatch="NEUTRAL"/>
+	            <ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
+			</filters>
+		</RollingFile>
+		
+        <RollingFile name="DailyFile4Info" append="false" 
+        		fileName="${LOG_HOME}/${INFO_NAME}.log"
+				filePattern="${LOG_HOME}/$${date:yyyy-MM}/${INFO_NAME}-%d{yyyy-MM-dd}-%i.log.gz">
+			<PatternLayout charset="UTF-8" pattern="%d{DEFAULT} %-5level %class{36} LINE:%L - %msg%xEx%n" />
+			<Policies>
+				<TimeBasedTriggeringPolicy />
+				<SizeBasedTriggeringPolicy size="20MB"/>
+			</Policies>
+			<filters>
+	            <ThresholdFilter level="WARN" onMatch="DENY" onMismatch="NEUTRAL"/>
+	            <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+			</filters>
+		</RollingFile>
+		
+        <RollingFile name="DailyFile4Warn" append="false" 
+        		fileName="${LOG_HOME}/${WARN_NAME}.log"
+				filePattern="${LOG_HOME}/$${date:yyyy-MM}/${INFO_NAME}-%d{yyyy-MM-dd}-%i.log.gz">
+			<PatternLayout charset="UTF-8" pattern="%d{DEFAULT} %-5level %class{36} LINE:%L - %msg%xEx%n" />
+			<Policies>
+				<TimeBasedTriggeringPolicy />
+				<SizeBasedTriggeringPolicy size="20MB"/>
+			</Policies>
+			<filters>
+	            <ThresholdFilter level="ERROR" onMatch="DENY" onMismatch="NEUTRAL"/>
+	            <ThresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="DENY"/>
+			</filters>
+		</RollingFile>
+		
+        <RollingFile name="DailyFile4Error" append="false"
+        		fileName="${LOG_HOME}/${ERROR_NAME}.log"
+				filePattern="${LOG_HOME}/$${date:yyyy-MM}/${ERROR_NAME}-%d{yyyy-MM-dd}-%i.log.gz">
+			<PatternLayout charset="UTF-8" pattern="%d{DEFAULT} %-5level %class{36} LINE:%L - %msg%xEx%n" />
+			<Policies>
+				<TimeBasedTriggeringPolicy />
+				<SizeBasedTriggeringPolicy size="20MB"/>
+			</Policies>
+			<filters>
+            	<ThresholdFilter level="FATAL" onMatch="DENY" onMismatch="NEUTRAL"/>
+            	<ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+            </filters>
+		</RollingFile>
+    </Appenders>
+    
+	<!-- 具体的日志对象及LEVEL控制 -->
+	<Loggers>
+	
+		<!-- 控制台打印SQL -->
+		<Logger name="org.opensource.demo.api.dao" level="DEBUG" additivity="false">
+			 <!-- <Appender-ref ref="Console" /> -->
+		</Logger>
+		
+		<!-- 系统日志文件 -->
+		<Logger name="org.opensource.demo.api" level="DEBUG" additivity="false">
+			<Appender-ref ref="DailyFile4Error" />
+			<Appender-ref ref="DailyFile4Warn" />
+			<Appender-ref ref="DailyFile4Info" />
+			<Appender-ref ref="DailyFile4Debug" />
+			<Appender-ref ref="Console" />
+		</Logger>
+		
+		<!-- 框架日志文件 -->		 
+		<Logger name="org.springframework" level="ERROR" additivity="false">
+			<Appender-ref ref="DailyFile4Error" />
+		</Logger>
+		<Logger name="com.alibaba" level="ERROR" additivity="false">
+			<Appender-ref ref="DailyFile4Error" />
+		</Logger>
+		
+		<Root level="ERROR">
+			<Appender-ref ref="DailyFile4Error" />
+			<Appender-ref ref="Console" />
+		</Root>
+	</Loggers>
+</Configuration>

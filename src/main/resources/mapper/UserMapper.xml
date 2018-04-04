@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.opensource.demo.api.dao.UserDao">
+
+	<select id="findById"
+		resultType="org.opensource.demo.api.pojo.User">
+		SELECT t1.*
+		FROM user_info t1
+		WHERE t1.id=#{id}
+	</select>
+
+	<select id="findByConditions"
+		resultType="org.opensource.demo.api.pojo.User">
+		SELECT t1.*
+		FROM user_info t1
+		<if test="params != null and params.size() > 0">
+			<where>
+				<if test="params.name != null">
+				AND t1.name=#{params.name}
+				</if>
+				<if test="params.email != null">
+				AND t1.email=#{params.email}
+				</if>
+				<if test="params.phone != null">
+				AND t1.phone=#{params.phone}
+				</if>
+			</where>
+		</if>
+	</select>
+
+	<insert id="save" useGeneratedKeys="true" keyProperty="id"  
+		parameterType="org.opensource.demo.api.pojo.User">
+		INSERT INTO user_info (name, email, phone)
+		VALUES (#{name}, #{email}, #{phone})
+	</insert>
+	
+</mapper>
